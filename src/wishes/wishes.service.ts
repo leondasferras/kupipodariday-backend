@@ -97,7 +97,7 @@ export class WishesService {
     });
     if (!wish) throw new NotFoundException('Такого подарка не существует');
     if (wish.owner.id !== userId) {
-      throw new BadRequestException('Нельзя удалять чужие карточки');
+      throw new BadRequestException('Нельзя удалять чужие подарки');
     }
     return this.wishRepository.delete({ id });
   }

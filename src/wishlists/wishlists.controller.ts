@@ -37,13 +37,14 @@ export class WishlistsController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateWishlistDto: UpdateWishlistDto,
+    @Body() wishlist: UpdateWishlistDto,
+    @Req() req,
   ) {
-    return this.wishlistsService.update(+id, updateWishlistDto);
+    return this.wishlistsService.update(+id, wishlist, req.user.id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishlistsService.remove(+id);
+  remove(@Param('id') wishListId: string, @Req() req) {
+    return this.wishlistsService.remove(+wishListId, req.user.id);
   }
 }
