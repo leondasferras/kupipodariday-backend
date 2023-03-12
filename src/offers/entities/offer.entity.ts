@@ -1,37 +1,18 @@
-import { Length } from 'class-validator';
-import { IsDecimal, IsUrl } from 'class-validator/types/decorator/decorators';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Column,
-} from 'typeorm';
+import { BaseEntity } from 'src/general/baseEntity';
+import { User } from 'src/users/entities/user.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
+import { Entity, Column, ManyToOne } from 'typeorm';
 
 @Entity()
-export class Offer {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class Offer extends BaseEntity {
+  @ManyToOne(() => User, (user) => user.offers)
+  user: User;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @ManyToOne(() => Wish, (wish) => wish.offers)
+  item: User;
 
   @Column({
-    type: 'varchar',
-  })
-  user: string;
-
-  @Column({
-    type: 'varchar',
-  })
-  @IsUrl()
-  item: string;
-
-  @Column({
-    type: 'decimal',
+    type: 'numeric',
     scale: 2,
   })
   amount: number;

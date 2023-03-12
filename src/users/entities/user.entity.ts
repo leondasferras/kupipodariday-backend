@@ -1,36 +1,26 @@
-import { Length } from 'class-validator';
-import { IsEmail } from 'class-validator/types/decorator/decorators';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Column,
-} from 'typeorm';
+import { Length, IsEmail, IsString, IsNotEmpty, IsUrl } from 'class-validator';
+import { BaseEntity } from 'src/general/baseEntity';
+import { Offer } from 'src/offers/entities/offer.entity';
+import { Wish } from 'src/wishes/entities/wish.entity';
+import { Wishlist } from 'src/wishlists/entities/wishlist.entity';
+import { Entity, Column, OneToMany } from 'typeorm';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class User extends BaseEntity {
   @Column({
     type: 'varchar',
     unique: true,
   })
   @Length(2, 30)
+  @IsString()
+  @IsNotEmpty()
   username: string;
 
   @Column({
     type: 'varchar',
-    unique: true,
     default: 'Пока ничего не рассказал о себе',
   })
+  @IsString()
   @Length(2, 200)
   about: string;
 
@@ -38,6 +28,8 @@ export class User {
     type: 'varchar',
     default: 'https://i.pravatar.cc/300',
   })
+  @IsString()
+  @IsUrl()
   avatar: string;
 
   @Column({
@@ -50,14 +42,15 @@ export class User {
   @Column({
     type: 'varchar',
   })
+  @IsString()
   password: string;
 
-  @Column()
-  wishes: string;
+  @OneToMany(() => Wish, (wish) => wish.owner)
+  wishes: Wish[];
 
-  @Column()
-  offers: string;
+  @OneToMany(() => Offer, (offer) => offer.user)
+  offers: Offer[];
 
-  @Column()
-  wishlists: string;
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.owner)
+  wishlists: Wishlist[];
 }
