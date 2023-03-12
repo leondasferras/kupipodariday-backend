@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { HashService } from 'src/hash/hash.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private hashService: HashService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const user = await this.userRepository.create(createUserDto);
+    const user = await this.userRepository.create({
+      ...createUserDto,
+      password: await this.hashService.hash(createUserDto.password),
+    });
     return this.userRepository.save(user);
   }
 
@@ -21,14 +26,24 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  findOne(id: number): Promise<User> {
-    const user = this.userRepository.findOneBy({ id });
+  async findOne(id: number): Promise<any> {
+    const user = await this.userRepository.findOneBy({ id });
+    const { password, ...result } = user;
+    return result;
+  }
+
+  async findUserForAuth(username: string) {
+    const user = await this.userRepository.findOneBy({ username });
     return user;
   }
 
-  async findByUsername(username: string) {
+  async findUserByName(username: string) {
     const user = await this.userRepository.findOneBy({ username });
-    return user;
+    if (!user) {
+      throw new NotFoundException('Такого пользователя не существует');
+    }
+    const { password, ...rest } = user;
+    return rest;
   }
 
   async findByEmail(email: string) {
@@ -36,11 +51,38 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async findBy(query: string): Promise<User> {
+    const emailReg =
+      /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    if (emailReg.test(query)) {
+      return this.userRepository.findOne({
+        where: { email: query },
+      });
+    } else
+      return this.userRepository.findOne({
+        where: { username: query },
+      });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    if (updateUserDto.password) {
+      const hashedPass = await this.hashService.hash(updateUserDto.password);
+      updateUserDto.password = hashedPass;
+    }
+    await this.userRepository.update(id, updateUserDto);
+    return updateUserDto;
+  }
+
+  async getUserWishes(id: number) {
+    const { wishes } = await this.userRepository.findOne({
+      where: { id },
+      select: ['wishes'],
+      relations: ['wishes', 'wishes.owner', 'wishes.offers'],
+    });
+    for (const wish of wishes) {
+      delete wish.owner.password;
+      delete wish.owner.email;
+    }
+    return wishes;
   }
 }

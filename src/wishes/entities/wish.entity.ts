@@ -1,4 +1,4 @@
-import { Length, IsString, IsUrl, isString } from 'class-validator';
+import { Length, IsString, IsUrl } from 'class-validator';
 import { BaseEntity } from 'src/general/baseEntity';
 import { Offer } from 'src/offers/entities/offer.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -29,6 +29,7 @@ export class Wish extends BaseEntity {
   @Column({
     type: 'numeric',
     scale: 2,
+    default: 0,
   })
   raised: number;
 
@@ -47,7 +48,7 @@ export class Wish extends BaseEntity {
   offers: Offer[];
 
   @Column({
-    type: 'int',
+    type: 'numeric',
     default: 0,
   })
   copied: number;

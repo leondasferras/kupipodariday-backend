@@ -1,4 +1,22 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateWishDto } from './create-wish.dto';
+import { Length, IsNotEmpty, IsOptional, IsUrl } from 'class-validator';
 
-export class UpdateWishDto extends PartialType(CreateWishDto) {}
+export class UpdateWishDto {
+  @IsOptional()
+  @Length(1, 250)
+  name: string;
+
+  @IsOptional()
+  @IsUrl()
+  link: string;
+
+  @IsOptional()
+  @IsUrl()
+  image: string;
+
+  @IsOptional()
+  price: number;
+
+  @IsOptional()
+  @Length(1, 1024)
+  description: string;
+}

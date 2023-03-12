@@ -32,7 +32,7 @@ export class AuthController {
       createUserDto.email,
     );
 
-    const isUsernameExist = await this.userService.findByUsername(
+    const isUsernameExist = await this.userService.findUserForAuth(
       createUserDto.username,
     );
 
