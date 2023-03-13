@@ -1,4 +1,4 @@
-import { Length, IsNotEmpty, IsOptional, IsUrl } from 'class-validator';
+import { Length, IsOptional, IsUrl } from 'class-validator';
 
 export class UpdateWishDto {
   @IsOptional()

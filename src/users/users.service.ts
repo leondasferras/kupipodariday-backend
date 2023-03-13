@@ -70,7 +70,7 @@ export class UsersService {
       updateUserDto.password = hashedPass;
     }
     await this.userRepository.update(id, updateUserDto);
-    return updateUserDto;
+    return await this.findOne(id);
   }
 
   async getUserWishes(id: number) {

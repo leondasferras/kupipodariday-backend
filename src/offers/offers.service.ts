@@ -19,23 +19,29 @@ export class OffersService {
 
   async create(offer: CreateOfferDto, user) {
     const wish = await this.wishesService.findOne(offer.itemId);
-
     if (!wish) throw new NotFoundException('Такого подарка не существует');
     if (wish.owner.id === user.id)
       throw new BadRequestException('Нельзя скидываться на свои подарки');
+    if (wish.raised == wish.price)
+      throw new BadRequestException('Нужная сумма уже набрана');
+    if (wish.raised + offer.amount > wish.price)
+      throw new BadRequestException('Сумма пожертвования слишком велика');
 
-    const { raised, ...rest } = wish;
-    const updatedWish = { ...rest, raised: wish.raised + offer.amount };
+    const raised = Number(wish.raised) + Number(offer.amount);
 
-    await this.wishesService.update(wish.id, updatedWish, user.id);
-    await this.offerRepository.save({ ...offer, user: user, item: wish });
+    await this.wishesService.updateRaised(wish.id, +raised);
+    return await this.offerRepository.save({
+      ...offer,
+      user: user,
+      item: wish,
+    });
   }
 
-  findAll() {
-    return `This action returns all offers`;
+  async findAll() {
+    return this.offerRepository.find({ relations: ['item', 'user'] });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} offer`;
+  async findOne(id: number) {
+    return this.offerRepository.findOneBy({ id });
   }
 }

@@ -70,6 +70,10 @@ export class WishesService {
     return await this.wishRepository.update(id, dtoWish);
   }
 
+  updateRaised(id: number, raised: number) {
+    this.wishRepository.update(id, { raised });
+  }
+
   async createCopy(wishId: number, userId: number) {
     const wish = await this.wishRepository.findOneBy({ id: wishId });
     if (!wish) throw new NotFoundException('Такого подарка не существует');
