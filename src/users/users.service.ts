@@ -33,7 +33,10 @@ export class UsersService {
   }
 
   async findUserForAuth(username: string) {
-    const user = await this.userRepository.findOneBy({ username });
+    const user = await this.userRepository.findOne({
+      where: { username },
+      select: ['password'],
+    });
     return user;
   }
 

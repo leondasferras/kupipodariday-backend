@@ -24,7 +24,7 @@ export class WishlistsService {
       where: { id: In(wishlist.itemsId || []) },
     });
     const newWishList = await this.wishListRepository.create({
-      ...Wishlist,
+      ...wishlist,
       owner: user,
       items: newWishes,
     });
@@ -51,7 +51,18 @@ export class WishlistsService {
     if (!wishList) throw new NotFoundException('Такого списка не существует');
     if (wishList.owner.id !== userId)
       throw new BadRequestException('Нельзя изменять чужие списки');
-    await this.wishListRepository.update(wishListId, wishlist);
+
+    const newWishes = await this.wishesService.find({
+      where: { id: In(wishlist.itemsId || []) },
+    });
+    const updatedWishList = {
+      ...wishList,
+      name: wishList.name,
+      image: wishList.image,
+      description: wishList.description,
+      items: newWishes,
+    };
+    await this.wishListRepository.update(wishListId, updatedWishList);
     return this.findOne(wishListId);
   }
 
@@ -60,6 +71,7 @@ export class WishlistsService {
     if (!wishList) throw new NotFoundException('Такого списка не существует');
     if (wishList.owner.id !== userId)
       throw new BadRequestException('Нельзя удалять чужие списки');
-    return await this.wishListRepository.delete(wishListId);
+    await this.wishListRepository.delete(wishListId);
+    return wishList;
   }
 }
