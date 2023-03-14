@@ -57,14 +57,17 @@ export class UsersService {
   async findBy(query: string): Promise<User> {
     const emailReg =
       /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    let user;
     if (emailReg.test(query)) {
-      return this.userRepository.findOne({
+      user = await this.userRepository.findOne({
         where: { email: query },
       });
     } else
-      return this.userRepository.findOne({
+      user = await this.userRepository.findOne({
         where: { username: query },
       });
+    if (!user) throw new NotFoundException('Ничего не найдено');
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

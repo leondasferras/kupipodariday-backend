@@ -22,9 +22,9 @@ export class OffersService {
     if (!wish) throw new NotFoundException('Такого подарка не существует');
     if (wish.owner.id === user.id)
       throw new BadRequestException('Нельзя скидываться на свои подарки');
-    if (wish.raised == wish.price)
+    if (Number(wish.raised) == Number(wish.price))
       throw new BadRequestException('Нужная сумма уже набрана');
-    if (wish.raised + offer.amount > wish.price)
+    if (Number(wish.raised) + Number(offer.amount) > Number(wish.price))
       throw new BadRequestException('Сумма пожертвования слишком велика');
 
     const raised = Number(wish.raised) + Number(offer.amount);

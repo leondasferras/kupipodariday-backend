@@ -83,9 +83,9 @@ export class WishesService {
       copied: (wish.copied += 1),
     });
 
+    const { id, ...rest } = wish;
     const copiedWish = {
-      ...wish,
-      owner: newOwner,
+      ...rest,
       copied: 0,
       raised: 0,
       offers: [],

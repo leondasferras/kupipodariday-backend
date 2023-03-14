@@ -14,18 +14,18 @@ import { HashModule } from 'src/hash/hash.module';
   providers: [AuthService, JwtStrategy, LocalStrategy],
   exports: [AuthService],
   imports: [
-    ConfigModule,
     UsersModule,
     PassportModule,
     HashModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
-        secret: 'jwtsecret',
+        inject: [ConfigService],
+        secret: 'jwtSecret',
         signOptions: { expiresIn: '1d' },
       }),
-      inject: [ConfigService],
     }),
+    ConfigModule,
   ],
 })
 export class AuthModule {}
