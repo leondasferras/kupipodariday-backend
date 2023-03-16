@@ -44,7 +44,7 @@ export class WishlistsService {
 
   async update(
     wishListId: number,
-    wishlist: UpdateWishlistDto,
+    wishlistDto: UpdateWishlistDto,
     userId: number,
   ) {
     const wishList = await this.findOne(wishListId);
@@ -53,17 +53,15 @@ export class WishlistsService {
       throw new BadRequestException('Нельзя изменять чужие списки');
 
     const newWishes = await this.wishesService.find({
-      where: { id: In(wishlist.itemsId || []) },
+      where: { id: In(wishlistDto.itemsId || []) },
     });
     const updatedWishList = {
       ...wishList,
-      name: wishList.name,
-      image: wishList.image,
-      description: wishList.description,
+      name: wishlistDto.name,
+      image: wishlistDto.image,
       items: newWishes,
     };
-    await this.wishListRepository.update(wishListId, updatedWishList);
-    return this.findOne(wishListId);
+    return await this.wishListRepository.save(updatedWishList);
   }
 
   async remove(wishListId: number, userId: number) {

@@ -97,13 +97,14 @@ export class WishesService {
   async remove(id: number, userId) {
     const wish = await this.wishRepository.findOne({
       where: { id },
-      relations: ['owner'],
+      relations: ['owner', 'offers'],
     });
     if (!wish) throw new NotFoundException('Такого подарка не существует');
     if (wish.owner.id !== userId) {
       throw new BadRequestException('Нельзя удалять чужие подарки');
     }
-    return this.wishRepository.delete({ id });
+    await this.wishRepository.delete({ id });
+    return wish;
   }
 
   public async find(options: FindManyOptions<Wish>) {
